@@ -16,6 +16,10 @@ interface ILoStrings {
 	ILoStrings insertIfNotThere(String string);
 
 	boolean isThere(String string);
+
+	ILoStrings sort();
+
+	ILoStrings insertSorted(String string);
 }
 
 class ConsLoDocuments implements ILoDocuments {
@@ -31,12 +35,13 @@ class ConsLoDocuments implements ILoDocuments {
 		String firstString = this.first.generateBibliographyString();
 		ILoStrings firstBiblio = this.first.generateBibliography();
 		ILoStrings restBiblio = this.rest.generateBibliography();
-		if (firstString == null  
-				) {
-			return firstBiblio.add(restBiblio);
+		ILoStrings result;
+		if (firstString == null) {
+			result = firstBiblio.add(restBiblio);
 		} else {
-			return  (firstBiblio.insertIfNotThere(firstString)).add(restBiblio);
+			result = (firstBiblio.insertIfNotThere(firstString)).add(restBiblio);
 		}
+		return result.sort();
 	}
 }
 
@@ -56,7 +61,7 @@ class ConsLoStrings implements ILoStrings {
 	}
 
 	public ILoStrings add(ILoStrings list) {
-		return  this.rest.add(list).insertIfNotThere(first);
+		return this.rest.add(list).insertIfNotThere(first);
 	}
 
 	public ILoStrings insertIfNotThere(String string) {
@@ -74,6 +79,18 @@ class ConsLoStrings implements ILoStrings {
 			return rest.isThere(string);
 		}
 	}
+
+	public ILoStrings sort() {
+		return rest.insertSorted(first);
+	}
+
+	public ILoStrings insertSorted(String string) {
+		if (first.compareToIgnoreCase(string) < 0) {
+			return new ConsLoStrings(first, new ConsLoStrings(string, rest));
+		} else {
+			return new ConsLoStrings(string, new ConsLoStrings(first, rest));
+		}
+	}
 }
 
 class EmptyLoStrings implements ILoStrings {
@@ -87,6 +104,14 @@ class EmptyLoStrings implements ILoStrings {
 
 	public boolean isThere(String string) {
 		return false;
+	}
+
+	public ILoStrings sort() {
+		return this;
+	}
+
+	public ILoStrings insertSorted(String string) {
+		return new ConsLoStrings(string, this);
 	}
 }
 
@@ -172,6 +197,12 @@ class ExamplesIDocument {
 	IDocument document9 = new Book(author1, "book4", new ConsLoDocuments(document3, eld), "publisher2");
 	IDocument document10 = new Book(author2, "book7",
 			new ConsLoDocuments(document3, new ConsLoDocuments(document1, eld)), "publisher2");
+	IDocument document11 = new WikiArticle(author1, "wiki4",
+			new ConsLoDocuments(document6, new ConsLoDocuments(document3, new ConsLoDocuments(document1, eld))),
+			"url4");
+	IDocument document12 = new WikiArticle(author1, "wiki4",
+			new ConsLoDocuments(document7, new ConsLoDocuments(document5, new ConsLoDocuments(document4, eld))),
+			"url4");
 
 	boolean testGenerateBibliography(Tester t) {
 		return t.checkExpect(document1.generateBibliography(), els)
@@ -181,13 +212,16 @@ class ExamplesIDocument {
 				&& t.checkExpect(document5.generateBibliography(), els)
 				&& t.checkExpect(document6.generateBibliography(), new ConsLoStrings("bbb, aaa. \"book1\"", els))
 				&& t.checkExpect(document8.generateBibliography(),
-						new ConsLoStrings("ddd, ccc. \"book2\"",
-								new ConsLoStrings("bbb, aaa. \"book1\"",
+						new ConsLoStrings("bbb, aaa. \"book1\"",
+								new ConsLoStrings("ddd, ccc. \"book2\"",
 										new ConsLoStrings("mmm, lll. \"book6\"", els))))
 				&& t.checkExpect(document9.generateBibliography(),
-						new ConsLoStrings("ddd, ccc. \"book2\"", new ConsLoStrings("bbb, aaa. \"book1\"", els)))
+						new ConsLoStrings("bbb, aaa. \"book1\"", new ConsLoStrings("ddd, ccc. \"book2\"", els)))
 				&& t.checkExpect(document10.generateBibliography(),
-						new ConsLoStrings("ddd, ccc. \"book2\"", new ConsLoStrings("bbb, aaa. \"book1\"", els)));
-
+						new ConsLoStrings("bbb, aaa. \"book1\"", new ConsLoStrings("ddd, ccc. \"book2\"", els)))
+				&& t.checkExpect(document11.generateBibliography(),
+						new ConsLoStrings("bbb, aaa. \"book1\"", new ConsLoStrings("ddd, ccc. \"book2\"", els)))
+				&& t.checkExpect(document12.generateBibliography(),
+						new ConsLoStrings("kkk, jjj. \"book3\"", new ConsLoStrings("mmm, lll. \"book6\"", els)));
 	}
 }

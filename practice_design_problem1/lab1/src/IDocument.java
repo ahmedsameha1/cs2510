@@ -86,9 +86,11 @@ class ConsLoStrings implements ILoStrings {
 
 	public ILoStrings insertSorted(String string) {
 		if (first.compareToIgnoreCase(string) < 0) {
-			return new ConsLoStrings(first, new ConsLoStrings(string, rest));
+			// There was a bug here that caught by ChatGPT
+			// https://chatgpt.com/share/68a0280e-ae30-8005-ab1b-3e3ba41411e2
+			return new ConsLoStrings(first, rest.insertSorted(string));
 		} else {
-			return new ConsLoStrings(string, new ConsLoStrings(first, rest));
+			return new ConsLoStrings(string, this);
 		}
 	}
 }
@@ -203,6 +205,20 @@ class ExamplesIDocument {
 	IDocument document12 = new WikiArticle(author1, "wiki4",
 			new ConsLoDocuments(document7, new ConsLoDocuments(document5, new ConsLoDocuments(document4, eld))),
 			"url4");
+	// To catch a bug caught by ChatGPT
+	// https://chatgpt.com/share/68a0280e-ae30-8005-ab1b-3e3ba41411e2
+	IDocument document13 = new Book(author2, "book11",
+			new ConsLoDocuments(new Book(new Author("rrr", "sss"), "book8",
+					new ConsLoDocuments(new Book(new Author("ppp", "qqq"), "book9",
+							new ConsLoDocuments(new Book(new Author("nnn", "ooo"), "book10", eld, "publisher3"), eld),
+							"publisher1"), eld),
+					"publisher2"), eld),
+			"publisher5");
+	IDocument document14 = new Book(author2, "book11",
+			new ConsLoDocuments(new Book(new Author("rrr", "sss"), "book8", eld, "publisher2"),
+					new ConsLoDocuments(new Book(new Author("ppp", "qqq"), "book9", eld, "publisher1"),
+							new ConsLoDocuments(new Book(new Author("nnn", "ooo"), "book10", eld, "publisher3"), eld))),
+			"publisher5");
 
 	boolean testGenerateBibliography(Tester t) {
 		return t.checkExpect(document1.generateBibliography(), els)
@@ -222,6 +238,14 @@ class ExamplesIDocument {
 				&& t.checkExpect(document11.generateBibliography(),
 						new ConsLoStrings("bbb, aaa. \"book1\"", new ConsLoStrings("ddd, ccc. \"book2\"", els)))
 				&& t.checkExpect(document12.generateBibliography(),
-						new ConsLoStrings("kkk, jjj. \"book3\"", new ConsLoStrings("mmm, lll. \"book6\"", els)));
+						new ConsLoStrings("kkk, jjj. \"book3\"", new ConsLoStrings("mmm, lll. \"book6\"", els)))
+				&& t.checkExpect(document13.generateBibliography(),
+						new ConsLoStrings("ooo, nnn. \"book10\"",
+								new ConsLoStrings("qqq, ppp. \"book9\"",
+										new ConsLoStrings("sss, rrr. \"book8\"", els))))
+				&& t.checkExpect(document14.generateBibliography(),
+						new ConsLoStrings("ooo, nnn. \"book10\"",
+								new ConsLoStrings("qqq, ppp. \"book9\"",
+										new ConsLoStrings("sss, rrr. \"book8\"", els))));
 	}
 }

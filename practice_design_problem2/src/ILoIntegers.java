@@ -2,9 +2,10 @@ import tester.Tester;
 
 interface ILoIntegers {
 	boolean checkRequirements();
-	boolean thereIsAnEvenNumber();
-	boolean thereIsAPositiveOddNumber();
-boolean thereIsANumberBetween5and10();
+
+	// Suggested by ChatGPT
+	boolean checkRequirementsHelper(boolean thereIsAnEvenNumber, boolean thereIsAPositiveOddNumber,
+			boolean thereIsANumberBetween5and10);
 }
 
 class ConsLoIntegers implements ILoIntegers {
@@ -17,33 +18,22 @@ class ConsLoIntegers implements ILoIntegers {
 	}
 
 	public boolean checkRequirements() {
-		return thereIsAnEvenNumber() && thereIsAPositiveOddNumber() && thereIsANumberBetween5and10();
+		return checkRequirementsHelper(false, false, false);
 	}
 
 	@Override
-	public boolean thereIsAnEvenNumber() {
-		if (first % 2 == 0) {
+	public boolean checkRequirementsHelper(boolean thereIsAnEvenNumber, boolean thereIsAPositiveOddNumber,
+			boolean thereIsANumberBetween5and10) {
+		// Suggested by ChatGPT
+		if (thereIsAnEvenNumber && thereIsAPositiveOddNumber && thereIsANumberBetween5and10) {
 			return true;
 		} else {
-			return rest.thereIsAnEvenNumber();
-		}
-	}
-
-	@Override
-	public boolean thereIsAPositiveOddNumber() {
-		if (first % 2 != 0 && first > 0) {
-			return true;
-		} else {
-			return rest.thereIsAPositiveOddNumber();
-		}
-	}
-
-	@Override
-	public boolean thereIsANumberBetween5and10() {
-		if (first >= 5 && first <= 10) {
-			return true;
-		} else {
-			return rest.thereIsANumberBetween5and10();
+			thereIsAnEvenNumber = thereIsAnEvenNumber || first % 2 == 0;
+			thereIsAPositiveOddNumber = thereIsAPositiveOddNumber || (first % 2 != 0 && first > 0);
+			thereIsANumberBetween5and10 = thereIsANumberBetween5and10 || (first >= 5 && first <= 10);
+			return (thereIsAnEvenNumber && thereIsAPositiveOddNumber && thereIsANumberBetween5and10)
+					|| rest.checkRequirementsHelper(thereIsAnEvenNumber, thereIsAPositiveOddNumber,
+							thereIsANumberBetween5and10);
 		}
 	}
 }
@@ -54,20 +44,8 @@ class EmptyLoIntegers implements ILoIntegers {
 	}
 
 	@Override
-	public boolean thereIsAnEvenNumber() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean thereIsAPositiveOddNumber() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean thereIsANumberBetween5and10() {
-		// TODO Auto-generated method stub
+	public boolean checkRequirementsHelper(boolean thereIsAnEvenNumber, boolean thereIsAPositiveOddNumber,
+			boolean thereIsANumberBetween5and10) {
 		return false;
 	}
 }
@@ -76,9 +54,8 @@ class ExamplesILoIntegers {
 	ILoIntegers eli = new EmptyLoIntegers();
 	ILoIntegers list1 = new ConsLoIntegers(6, new ConsLoIntegers(5, eli));
 	ILoIntegers list2 = new ConsLoIntegers(4, new ConsLoIntegers(3, eli));
-	
+
 	boolean testCheckRequirements(Tester t) {
-		return t.checkExpect(list1.checkRequirements(), true) 
-				&& t.checkExpect(list2.checkRequirements(), false);
+		return t.checkExpect(list1.checkRequirements(), true) && t.checkExpect(list2.checkRequirements(), false);
 	}
 }

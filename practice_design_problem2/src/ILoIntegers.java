@@ -65,7 +65,8 @@ class ConsLoIntegers implements ILoIntegers {
 			if ((first >= 5 && first <= 10)) {
 				return rest.checkRequirementsHelperB(thereIsAnEvenNumber, thereIsAPositiveOddNumber, true);
 			} else {
-				return true;
+				return rest.checkRequirementsHelperB(thereIsAnEvenNumber, thereIsAPositiveOddNumber,
+						thereIsANumberBetween5and10);
 			}
 		}
 
@@ -142,6 +143,8 @@ class ExamplesILoIntegers {
 			new ConsLoIntegers(5, new ConsLoIntegers(6, new ConsLoIntegers(42, eli))));
 	ILoIntegers list7 = new ConsLoIntegers(8,
 			new ConsLoIntegers(5, new ConsLoIntegers(6, new ConsLoIntegers(42, eli))));
+	// Suggested by ChatGPT
+	ILoIntegers list8 = new ConsLoIntegers(2, new ConsLoIntegers(-3, new ConsLoIntegers(42, eli)));
 
 	boolean testCheckRequirementsA(Tester t) {
 		return t.checkExpect(list1.checkRequirementsA(), true) && t.checkExpect(list2.checkRequirementsA(), false);
@@ -150,12 +153,13 @@ class ExamplesILoIntegers {
 	boolean testCheckRequirementsB(Tester t) {
 		return t.checkExpect(list1.checkRequirementsB(), false) && t.checkExpect(list3.checkRequirementsB(), true)
 				&& t.checkExpect(list4.checkRequirementsB(), true) && t.checkExpect(list5.checkRequirementsB(), true)
-				&& t.checkExpect(list6.checkRequirementsB(), true) && t.checkExpect(list7.checkRequirementsB(), true);
+				&& t.checkExpect(list6.checkRequirementsB(), true) && t.checkExpect(list7.checkRequirementsB(), true)
+				&& t.checkExpect(list8.checkRequirementsB(), false);
 	}
 
 	boolean testCheckRequirementsC(Tester t) {
 		return t.checkExpect(list3.checkRequirementsC(), true) && t.checkExpect(list4.checkRequirementsC(), false)
 				&& t.checkExpect(list5.checkRequirementsC(), false) && t.checkExpect(list6.checkRequirementsC(), false)
-				&& t.checkExpect(list7.checkRequirementsC(), false);
+				&& t.checkExpect(list7.checkRequirementsC(), false) && t.checkExpect(list8.checkRequirementsC(), false);
 	}
 }

@@ -1,0 +1,14 @@
+#lang racket
+(require rackunit)
+
+(define (checkArbitraryRequirements requirements loi)
+  (cond [(empty? requirements) true]
+        [(and (not (empty? requirements)) (empty? loi)) false]
+        [else 
+         (foldl (car requirements) true loi)]
+        ))
+
+
+(check-equal? (checkArbitraryRequirements (list) (list)) true)
+(check-equal? (checkArbitraryRequirements (list (lambda (x sofar) (and (= (remainder x 2) 0) sofar))) (list)) false)
+(check-equal? (checkArbitraryRequirements (list (lambda (x sofar) (and (= (remainder x 2) 0) sofar))) (list 2)) true)

@@ -1,0 +1,81 @@
+#lang racket
+(require rackunit)
+
+(define (checkArbitraryRequirementsA requirements loi)
+  (cond [(empty? requirements) true]
+        [(and (not (empty? requirements)) (empty? loi)) false]
+        [else 
+         (and (foldl (car requirements) false loi) (checkArbitraryRequirementsA (cdr requirements) loi))]
+        ))
+
+
+(check-equal? (checkArbitraryRequirementsA empty empty) true)
+(check-equal? (checkArbitraryRequirementsA empty (list 2)) true)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))) empty) false)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))) (list 6 5)) true)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))) (list 3)) false)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))) (list 3)) false)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))) (list 6 5)) true)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 6 5)) true)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3)) false)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 2)) false)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 5)) true)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 2 0)) false)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 5 0)) true)
+(check-equal? (checkArbitraryRequirementsA (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 5 6)) true)
+
+(define (checkArbitraryRequirementsB requirements loi)
+  (cond [(empty? requirements) true]
+        [(and (not (empty? requirements)) (empty? loi)) false]
+        [else 
+         (and (foldl (car requirements) false loi) (checkArbitraryRequirementsB (cdr requirements) (cdr loi)))]
+        ))
+
+(check-equal? (checkArbitraryRequirementsB empty empty) true)
+(check-equal? (checkArbitraryRequirementsB empty (list 2)) true)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))) empty) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))) (list 6 5)) true)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))) (list 3)) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))) (list 3)) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))) (list 6 5)) true)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 6 5)) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3)) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 2)) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 5)) true)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 2 0)) false)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 5 0)) true)
+(check-equal? (checkArbitraryRequirementsB (list (lambda (x sofar) (or (= (remainder x 2) 0) sofar))
+                                                 (lambda (x sofar) (or (and (not (= (remainder x 2) 0)) (> x 0)) sofar))
+                                                 (lambda (x sofar) (or (and (>= x 5) (<= x 10)) sofar))) (list 4 3 5 6)) true)
+
+
